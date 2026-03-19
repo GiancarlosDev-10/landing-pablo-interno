@@ -1,0 +1,119 @@
+---
+import ProgressBar from './ProgressBar.astro';
+---
+
+<section class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-[640px] space-y-4">
+    
+    <!-- Logo -->
+    <div class="flex justify-center animate-fade-up" style="animation-delay: 0.2s;">
+      <img 
+        src="/logo.png" 
+        alt="Pablo Logo" 
+        width="90" 
+        height="90"
+        class="animate-float-in"
+      />
+    </div>
+
+    <!-- Label -->
+    <div class="flex justify-center items-center gap-3 animate-fade-up" style="animation-delay: 0.3s;">
+      <span class="text-[#F5C518] font-[DM_Sans] text-sm tracking-widest uppercase">
+       ¡ YA DISPONIBLE !
+      </span>
+    </div>
+
+    <!-- H1 -->
+    <h1 class="text-center font-[Syne] font-extrabold text-[3.4rem] leading-tight tracking-[-0.02em] animate-fade-up" style="animation-delay: 0.4s;">
+      Pablo está <span class="text-[#F5C518]">listo</span> para ti
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-center text-[#8a7f6a] text-base leading-relaxed animate-fade-up" style="animation-delay: 0.5s;">
+      Tu asistente financiero inteligente. <br /> Únete a nosotros y sé de los primeros en transformar tus finanzas.
+    </p>
+
+    <!-- Barra de progreso -->
+    <ProgressBar />
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-3 gap-4 animate-fade-up" style="animation-delay: 0.7s;">
+      <!-- Tarjeta 1: Usuarios -->
+      <div class="bg-[#161616] border border-[#1e1e1e] rounded-2xl p-4 text-center">
+        <div class="font-[Syne] font-extrabold text-[1.5rem] text-[#F0E8D0]" id="user-count">0</div>
+        <div class="text-sm text-[#8a7f6a] mt-1">Usuarios en lista</div>
+      </div>
+
+      <!-- Tarjeta 2: Porcentaje -->
+      <div class="bg-[#161616] border border-[#1e1e1e] rounded-2xl p-4 text-center">
+        <div class="font-[Syne] font-extrabold text-[1.5rem] text-[#F0E8D0]" id="percentage">0%</div>
+        <div class="text-sm text-[#8a7f6a] mt-1">de la meta</div>
+      </div>
+
+      <!-- Tarjeta 3: Ubicación -->
+      <div class="bg-[#161616] border border-[#1e1e1e] rounded-2xl p-4 text-center">
+        <div class="font-[Syne] font-extrabold text-[1.5rem]">🇵🇪</div>
+        <div class="text-sm text-[#8a7f6a] mt-1">Lima, Perú</div>
+      </div>
+    </div>
+
+    <!-- CTA Button -->
+    <div class="flex justify-center animate-fade-up" style="animation-delay: 0.8s;">
+      <a 
+        href="https://www.usapablo.com/"
+        class="inline-flex items-center gap-2 bg-[#F5C518] text-[#0c0c0c] font-[Syne] font-bold px-8 py-4 rounded-full hover:transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#F5C518]/25 transition-all duration-200"
+      >
+        Únete a nuestra comunidad
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Actualizar stats con animación
+  document.addEventListener('DOMContentLoaded', () => {
+    // Obtener datos desde el endpoint o usar los datos del componente ProgressBar
+    const updateStats = async () => {
+      try {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        
+        // Animar contador de usuarios
+        animateValue('user-count', 0, data.count, 1500);
+        
+        // Actualizar porcentaje
+        const percentageElement = document.getElementById('percentage');
+        if (percentageElement) {
+          percentageElement.textContent = `${data.percentage.toFixed(1)}%`;
+        }
+      } catch (error) {
+        console.error('Error updating stats:', error);
+      }
+    };
+
+    updateStats();
+  });
+
+  // Función para animar números
+  function animateValue(id: string, start: number, end: number, duration: number) {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    const range = end - start;
+    const increment = range / (duration / 16);
+    let current = start;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+        element.textContent = end.toString();
+        clearInterval(timer);
+      } else {
+        element.textContent = Math.floor(current).toString();
+      }
+    }, 16);
+  }
+</script>

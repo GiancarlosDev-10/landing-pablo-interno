@@ -1,0 +1,88 @@
+---
+import { fetchUserCount } from '../lib/sheets';
+import { GOAL } from '../lib/config';
+
+// Obtener datos del servidor
+const userCount = await fetchUserCount();
+const percentage = Math.min((userCount / GOAL) * 100, 100);
+
+const data = {
+  count: userCount,
+  goal: GOAL,
+  percentage: percentage,
+};
+---
+
+<div class="w-full max-w-2xl mx-auto animate-fade-up" style="animation-delay: 0.6s;">
+  <!-- Labels sobre la barra -->
+  <div class="flex justify-between items-center mb-3">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-[#F5C518] rounded-full animate-pulse-dot"></div>
+      <span class="text-sm text-[#8a7f6a]">Comunidad creciendo</span>
+    </div>
+    <span class="text-sm text-[#8a7f6a]">Meta: {data.goal} usuarios</span>
+  </div>
+
+  <!-- Barra de progreso -->
+  <div class="relative h-13 bg-[#161616] rounded-full border-2 border-[#2a2a2a] overflow-hidden">
+    <!-- Fill animado -->
+    <div 
+      class="absolute top-0 left-0 h-full bg-[#F5C518] transition-all duration-[1.6s] ease-[cubic-bezier(0.22,1,0.36,1)] rounded-full flex items-center justify-end pr-2"
+      style="width: 0%;"
+      id="progress-fill"
+    >
+      <!-- Patrón de olas SVG -->
+      <svg class="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 100 20" preserveAspectRatio="none">
+        <path 
+          d="M0,10 Q25,5 50,10 T100,10 L100,20 L0,20 Z" 
+          fill="white"
+        />
+        <path 
+          d="M0,15 Q25,10 50,15 T100,15 L100,20 L0,20 Z" 
+          fill="white"
+          opacity="0.5"
+        />
+      </svg>
+
+      <!-- Logo kawaii de Pablo -->
+      <div class="relative z-10">
+        <div class="w-13 h-13 bg-white rounded-full flex items-center justify-center animate-bobble">
+          <span class="text-2xl">🤖</span>
+        </div>
+        
+        <!-- Speech bubble -->
+        <div class="absolute -top-10 right-0 bg-[#0c0c0c] text-[#F0E8D0] px-3 py-1 rounded-lg text-sm whitespace-nowrap border border-[#2a2a2a]">
+          {data.count} usuarios
+          <div class="absolute -bottom-2 right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#0c0c0c]"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Texto de estado -->
+  <div class="text-center mt-3">
+    <span class="text-sm text-[#8a7f6a]">
+      Actualizado en tiempo real · {data.count} de {data.goal} usuarios
+    </span>
+  </div>
+
+  <!-- Script para animación client-side -->
+  <script>
+    // Animar la barra después de que cargue la página
+    setTimeout(() => {
+      const fill = document.getElementById('progress-fill');
+      if (fill) {
+        fill.style.width = '{data.percentage}%';
+      }
+    }, 100);
+  </script>
+</div>
+
+<style>
+  .h-13 {
+    height: 52px;
+  }
+  .w-13 {
+    width: 52px;
+  }
+</style>
