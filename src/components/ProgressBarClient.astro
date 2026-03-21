@@ -41,6 +41,12 @@ const { initialData } = Astro.props;
           `;
         }
         
+        // Actualizar texto "X / Y disponibles"
+        const availableText = document.querySelector('.text-sm.text-\\[#8a7f6a\\]:last-child');
+        if (availableText) {
+          availableText.textContent = `${data.count} / ${data.goal} disponibles`;
+        }
+        
         // Actualizar porcentaje en Hero
         const percentageElement = document.getElementById('percentage');
         if (percentageElement) {
