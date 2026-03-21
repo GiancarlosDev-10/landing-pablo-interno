@@ -1,0 +1,89 @@
+---
+// Componente de isla para actualización dinámica en Astro
+interface Props {
+  initialData: {
+    count: number;
+    goal: number;
+    percentage: number;
+  };
+}
+
+const { initialData } = Astro.props;
+---
+
+<!-- Componente de isla: Script inline sin client:load -->
+<div>
+  <script>
+    // Función para actualizar datos desde el API
+    const updateData = async () => {
+      try {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        
+        // Actualizar barra de progreso
+        const fill = document.getElementById('progress-fill');
+        if (fill) {
+          fill.style.width = `${data.percentage}%`;
+        }
+        
+        // Actualizar contador con imagen
+        const counter = document.getElementById('user-counter');
+        if (counter) {
+          counter.innerHTML = `
+            <div class="flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="9" r="2"></circle>
+                <path d="m21 9-9-3 3-3-3"></path>
+              </svg>
+              <span>${data.count} usuarios</span>
+            </div>
+          `;
+        }
+        
+        // Actualizar porcentaje en Hero
+        const percentageElement = document.getElementById('percentage');
+        if (percentageElement) {
+          percentageElement.textContent = `${data.percentage.toFixed(1)}%`;
+        }
+        
+        // Actualizar usuarios en Hero
+        const userCountElement = document.getElementById('user-count');
+        if (userCountElement) {
+          // Animar el número
+          animateValue('user-count', parseInt(userCountElement.textContent) || 0, data.count, 1000);
+        }
+        
+        console.log('Datos actualizados:', data);
+      } catch (error) {
+        console.error('Error actualizando datos:', error);
+      }
+    };
+    
+    // Función para animar números con tipos
+    function animateValue(id: string, start: number, end: number, duration: number): void {
+      const element = document.getElementById(id);
+      if (!element) return;
+      
+      const range = end - start;
+      const increment = range / (duration / 16);
+      let current = start;
+      
+      const timer = setInterval(() => {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+          element.textContent = end.toString();
+          clearInterval(timer);
+        } else {
+          element.textContent = Math.floor(current).toString();
+        }
+      }, 16);
+    }
+    
+    // Actualizar inmediatamente cuando carga
+    setTimeout(updateData, 500);
+    
+    // Actualizar cada 3 minutos para mantener frescos los datos sin consumir API excesivamente
+    setInterval(updateData, 180000);
+  </script>
+</div>

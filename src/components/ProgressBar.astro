@@ -1,8 +1,9 @@
 ---
 import { fetchUserCount } from '../lib/sheets';
 import { GOAL } from '../lib/config';
+import ProgressBarClient from './ProgressBarClient.astro';
 
-// Obtener datos del servidor
+// Obtener datos del servidor (para producción y fallback)
 const userCount = await fetchUserCount();
 const percentage = Math.min((userCount / GOAL) * 100, 100);
 
@@ -47,36 +48,25 @@ const data = {
       <!-- Logo kawaii de Pablo -->
       <div class="relative z-10">
         <div class="w-13 h-13 bg-white rounded-full flex items-center justify-center animate-bobble">
-          <span class="text-2xl">🤖</span>
-        </div>
-        
-        <!-- Speech bubble -->
-        <div class="absolute -top-10 right-0 bg-[#0c0c0c] text-[#F0E8D0] px-3 py-1 rounded-lg text-sm whitespace-nowrap border border-[#2a2a2a]">
-          {data.count} usuarios
-          <div class="absolute -bottom-2 right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#0c0c0c]"></div>
+          <img src="/image.png" alt="Pablo Logo" width="40" height="40" class="rounded-full" />
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Texto de estado -->
+  <!-- Texto de estado con contador dinámico -->
   <div class="text-center mt-3">
     <span class="text-sm text-[#8a7f6a]">
-      Actualizado en tiempo real · {data.count} de {data.goal} usuarios
+      Actualizado en tiempo real · 
+      <span id="user-counter" class="font-bold text-[#F0E8D0]">
+        {data.count} usuarios
+      </span>
     </span>
   </div>
-
-  <!-- Script para animación client-side -->
-  <script>
-    // Animar la barra después de que cargue la página
-    setTimeout(() => {
-      const fill = document.getElementById('progress-fill');
-      if (fill) {
-        fill.style.width = '{data.percentage}%';
-      }
-    }, 100);
-  </script>
 </div>
+
+<!-- Componente de isla para actualización dinámica -->
+<ProgressBarClient initialData={data} client:load />
 
 <style>
   .h-13 {
