@@ -8,7 +8,6 @@ export async function fetchUserCount(): Promise<number> {
       return 0;
     }
 
-    // Agregar timestamp para evitar caché
     const timestamp = Date.now();
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&t=${timestamp}`;
 
@@ -26,17 +25,26 @@ export async function fetchUserCount(): Promise<number> {
     }
 
     const csvText = await response.text();
-
-    // Dividir por líneas y filtrar líneas vacías
     const lines = csvText.split("\n").filter((line) => line.trim());
 
-    // Excluir el header (primera línea) y contar filas con datos
-    const dataRows = lines.slice(1).filter((line) => line.trim());
+    // Obtener índice de la columna "tipo" desde el header
+    const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+    const tipoIndex = headers.indexOf("tipo");
+
+    if (tipoIndex === -1) {
+      // Si no existe la columna tipo, cuenta todas las filas
+      return lines.slice(1).filter((line) => line.trim()).length;
+    }
+
+    // Contar solo filas donde tipo = "pagado"
+    const dataRows = lines.slice(1).filter((line) => {
+      const cols = line.split(",");
+      return cols[tipoIndex]?.trim().toLowerCase() === "pagado";
+    });
 
     return dataRows.length;
   } catch (error) {
     console.error("Error fetching user count:", error);
-    // Fallback a 0 si hay error
     return 0;
   }
 }
