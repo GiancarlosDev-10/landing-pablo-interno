@@ -1,1 +1,1 @@
-export const GOAL = 100;
+export const GOAL = 250;
