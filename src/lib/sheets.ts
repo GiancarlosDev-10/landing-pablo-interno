@@ -27,19 +27,28 @@ export async function fetchUserCount(): Promise<number> {
     const csvText = await response.text();
     const lines = csvText.split("\n").filter((line) => line.trim());
 
-    // Obtener índice de la columna "tipo" desde el header
+    // Obtener índice de las columnas desde el header
     const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
     const tipoIndex = headers.indexOf("tipo");
+    const renovacionIndex = headers.indexOf("renovacion");
 
     if (tipoIndex === -1) {
       // Si no existe la columna tipo, cuenta todas las filas
       return lines.slice(1).filter((line) => line.trim()).length;
     }
 
-    // Contar solo filas donde tipo = "pagado"
+    // Contar solo filas donde tipo = "pagado" y renovacion != "no"
     const dataRows = lines.slice(1).filter((line) => {
       const cols = line.split(",");
-      return cols[tipoIndex]?.trim().toLowerCase() === "pagado";
+      const tipo = cols[tipoIndex]?.trim().toLowerCase();
+
+      // Si no existe columna renovacion, solo filtra por tipo
+      if (renovacionIndex === -1) {
+        return tipo === "pagado";
+      }
+
+      const renovacion = cols[renovacionIndex]?.trim().toLowerCase();
+      return tipo === "pagado" && renovacion !== "no";
     });
 
     return dataRows.length;
